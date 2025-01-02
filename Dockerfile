@@ -1,10 +1,9 @@
-FROM gradle:7.6.0-jdk17 AS build
-WORKDIR /app
-COPY . .
-RUN gradle clean build -x test
+FROM gradle:7-jdk17 AS build
+COPY --chown=gradle:gradle . /home/gradle/src
+WORKDIR /home/gradle/src
+RUN gradle build --no-daemon -x test
 
 FROM openjdk:17.0.1-jdk-slim
-WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
+COPY --from=build /home/gradle/src/build/libs/*.jar vet.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "vet.jar"]
